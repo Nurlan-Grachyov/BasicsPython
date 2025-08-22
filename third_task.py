@@ -7,7 +7,18 @@ class Fibonacci:
         self.a, self.b = self.b, self.a + self.b
         return self.a
 
+    # def __iter__(self):
+    #     return self.a, self.b
+
+    def __iter__(self):
+        return self
+
+# есть разница, что возвращать в итере?
 
 f = Fibonacci()
-for i in range(100):
-    print(next(f))
+print(next(f))
+print(next(f))
+print(next(f))
+print(next(f))
+print(next(f))
+print(next(f))

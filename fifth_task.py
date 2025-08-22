@@ -4,33 +4,39 @@ from dataclasses import dataclass
 @dataclass
 class PercentDiscount:
     """There is no need to describe anything here."""
+
     value: float
 
 
 @dataclass
 class FixDiscount:
     """There is no need to describe anything here."""
+
     value: float
 
 
 @dataclass
 class LoyaltyDiscount:
     """There is no need to describe anything here."""
+
     value: float
 
 
 @dataclass
 class Order:
     """There is no need to describe anything here."""
+
     # Объявил заказ, скидки для каждых категорий.
     order: dict[str, dict[str, float | str]]
-    discount_for_categories = {(PercentDiscount, FixDiscount, LoyaltyDiscount): ["list of product categories"],
-                               (PercentDiscount, FixDiscount): ["list of product categories"],
-                               (FixDiscount, LoyaltyDiscount): ["list of product categories"],
-                               (PercentDiscount, LoyaltyDiscount): ["list of product categories"],
-                               (PercentDiscount,): ["list of product categories"],
-                               (FixDiscount,): ["list of product categories"],
-                               (LoyaltyDiscount,): ["list of product categories"]}
+    discount_for_categories = {
+        (PercentDiscount, FixDiscount, LoyaltyDiscount): ["list of product categories"],
+        (PercentDiscount, FixDiscount): ["list of product categories"],
+        (FixDiscount, LoyaltyDiscount): ["list of product categories"],
+        (PercentDiscount, LoyaltyDiscount): ["list of product categories"],
+        (PercentDiscount,): ["list of product categories"],
+        (FixDiscount,): ["list of product categories"],
+        (LoyaltyDiscount,): ["list of product categories"],
+    }
     PercentFixLoyalty = (PercentDiscount, FixDiscount, LoyaltyDiscount)
     PercentFix = (PercentDiscount, FixDiscount)
     FixLoyalty = (FixDiscount, LoyaltyDiscount)

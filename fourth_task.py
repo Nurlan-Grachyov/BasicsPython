@@ -101,11 +101,14 @@ class ParserFactory:
 
     def create_parser(self):
         # в зависимости от источника сообщения вызываем нужный парсер
-        if self.choose_source == 'telegram':
-            return TelegramParser(self.message)
-        elif self.choose_source == 'slack':
-            return SlackParser(self.message)
-        elif self.choose_source == 'mattermost':
-            return MattermostParser(self.message)
-        else:
+        # а то что мне в словарь придется добавлять новый класс парсера и название мессенджера - это норм?
+        PARSER_MAP = {
+            'telegram': TelegramParser,
+            'slack': SlackParser,
+            'mattermost': MattermostParser,
+        }
+        source_type = self.choose_source()
+        parser_class = PARSER_MAP.get(source_type)
+        if not parser_class:
             raise ValueError("Неизвестный тип источника")
+        return parser_class(self.message)
