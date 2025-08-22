@@ -1,69 +1,83 @@
-from dataclasses import dataclass
+from abc import ABC, abstractmethod
 
 
-@dataclass
-class PercentDiscount:
-    """There is no need to describe anything here."""
+class Discount(ABC):
+    """
+    Абстрактный базовый класс для скидок.
+    Требует реализовать метод apply для применения скидки к цене.
+    """
 
-    value: float
-
-
-@dataclass
-class FixDiscount:
-    """There is no need to describe anything here."""
-
-    value: float
+    @abstractmethod
+    def apply(self, price: float) -> float:
+        """Применяет скидку к цене и возвращает новую цену."""
+        pass
 
 
-@dataclass
-class LoyaltyDiscount:
-    """There is no need to describe anything here."""
+class PercentDiscount(Discount):
+    """
+    Скидка в процентах.
+    """
 
-    value: float
+    def __init__(self, value: float):
+        self.value = value
+
+    def apply(self, price: float) -> float:
+        return price * (1 - self.value / 100)
 
 
-@dataclass
+class FixDiscount(Discount):
+    """
+    Фиксированная скидка в денежном выражении.
+    """
+
+    def __init__(self, value: float):
+        self.value = value
+
+    def apply(self, price: float) -> float:
+        return max(0.0, price - self.value)
+
+
+class LoyalDiscount(Discount):
+    """
+    Скидка для постоянных клиентов.
+    """
+
+    def __init__(self, value: float):
+        self.value = value
+
+    def apply(self, price: float) -> float:
+        return max(0.0, price - self.value)
+
+
 class Order:
-    """There is no need to describe anything here."""
+    """
+    Класс для обработки заказа с товарами и применяемыми скидками.
+    """
 
-    # Объявил заказ, скидки для каждых категорий.
-    order: dict[str, dict[str, float | str]]
-    discount_for_categories = {
-        (PercentDiscount, FixDiscount, LoyaltyDiscount): ["list of product categories"],
-        (PercentDiscount, FixDiscount): ["list of product categories"],
-        (FixDiscount, LoyaltyDiscount): ["list of product categories"],
-        (PercentDiscount, LoyaltyDiscount): ["list of product categories"],
-        (PercentDiscount,): ["list of product categories"],
-        (FixDiscount,): ["list of product categories"],
-        (LoyaltyDiscount,): ["list of product categories"],
-    }
-    PercentFixLoyalty = (PercentDiscount, FixDiscount, LoyaltyDiscount)
-    PercentFix = (PercentDiscount, FixDiscount)
-    FixLoyalty = (FixDiscount, LoyaltyDiscount)
-    PercentLoyalty = (PercentDiscount, LoyaltyDiscount)
-    Percen = (PercentDiscount,)
-    Fix = (FixDiscount,)
-    Loyalty = (LoyaltyDiscount,)
-    product_prices = []
-
-    def choose_discount(self):
+    def __init__(self, items: list[dict]):
         """
-        Проходим по order, забираем оттуда категорию и сравниваю ее категориями, имеющиеся у discount_for_categories,
-        находим нужный кортеж категорий и высчитываем итоговую сумму товара.
+        Список товаров, каждый в виде словаря с ключами 'category' и 'price'.
         """
+        self.items = items
+        # Скидки для каждой категории
+        self.discounts = {
+            "category": (
+                LoyalDiscount(10.0),
+                FixDiscount(150.0),
+                PercentDiscount(5.0)
+            )
+        }
 
-        for key, value in self.order.items():
-            category = value.get("category")
-            for key_cat, category_cat in self.discount_for_categories.items():
-                if category_cat == category:
-                    if key_cat == self.PercentFixLoyalty:
-                        # здесь высчитываем итоговую цену каждого товара со всеми возможными скидками для этой категории
-                        pass
-                    elif key_cat == self.PercentFix:
-                        pass
-                    # и так далее
-                    self.product_prices.append(price)
-
-    def price_order(self):
-        price_order = sum(self.product_prices)
-        return price_order
+    def calculate_total(self) -> float:
+        """
+        Вычисляет итоговую сумму заказа с учетом скидок.
+        """
+        total = 0
+        for product in self.items:
+            category = product.get("category")
+            price = product.get("price")
+            # Применяем все скидки для категории
+            for discount in self.discounts.get(category, []):
+                price = discount.apply(price)
+            total += price
+        return total
